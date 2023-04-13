@@ -7,15 +7,15 @@ const verifyUser = async (req, res, next) => {
         await UserModel.findOne({userName: userName})
         .then((result) => {
             if(!result){
-                res.status(400).send({msg: "Can't verify the user"});
+                res.status(404).send({msg: "Can't verify the user"});
             }
             next();
         })
         .catch((error) => {
-            res.send({error});
+            res.status(500).send({error});
         })
     } catch (error) {
-        res.send({msg: "Authentication is failed"});
+        res.status(404).send({msg: "Authentication is failed"});
     }
 }
 

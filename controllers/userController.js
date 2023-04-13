@@ -42,17 +42,17 @@ const registerUser = async (req, res) => {
         newUser
         .save()
         .then((result) => {
-            return res.send({msg: "User is registered successfully"});
+            return res.status(201).send({msg: "User is registered successfully"});
         })
         .catch((error) => {
-            res.send({msg: "unable to save the data"});
+            res.status(500).send({msg: "unable to save the data"});
         })
     })
     .catch((error) => {
-        res.send({msg: "unable to hashed password"});
+        res.status(500).send({msg: "unable to hashed password"});
     })
     } catch (error) {
-        res.send({error: error.message});
+        res.status(500).send({error: error.message});
     }
     
 
@@ -71,7 +71,7 @@ const loginUser = async (req, res) => {
                 userId: foundUser._id,
                 userName: foundUser.userName
             }, process.env.SECRET_MSG, options);
-            res.send({
+            res.status(200).send({
                 msg: "Login successfully",
                 token: token,
                 userDetails: {
@@ -81,11 +81,11 @@ const loginUser = async (req, res) => {
             });
         })
         .catch((error) => {
-            res.send({error});
+            res.status(404).send({error: "User is not found"});
         })
 
     } catch (error) {
-        res.send({error: error.message});
+        res.status(500).send({error: error.message});
     }
 }
 
@@ -96,20 +96,20 @@ const updateUser = async (req, res) => {
     try {
         UserModel.findByIdAndUpdate({_id: userId}, req.body)
         .then((user) => {
-            res.send({msg: "Data updated successfully"});
+            res.status(201).send({msg: "Data updated successfully"});
         })
         .catch((error) => {
-            res.send({error});
+            res.status(500).send({error});
         })
     } catch (error) {
-        res.send({error: error.message});
+        res.status(500).send({error: error.message});
     }
 }
 
 const generateOTP = async (req, res) => {
   
     req.app.locals.OTP = await otpGenerator.generate(6, {lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
-    res.send({code: req.app.locals.OTP});
+    res.status(201).send({code: req.app.locals.OTP});
 }
 
 const verifyOTP = async (req, res) => {
@@ -135,7 +135,7 @@ const resetPassword = async (req, res) => {
     const {userName, password} = req.body;
     try {
         if(!req.app.locals.resetSession){
-            res.send({msg: "session expired"});
+            res.status(440).send({msg: "session expired"});
         }
         await UserModel.findOne({userName: userName})
         .then((foundUser) => {
@@ -145,21 +145,21 @@ const resetPassword = async (req, res) => {
                     {password: hashedPassword})
                     .then((result) => {
                         req.app.locals.resetSession = false;
-                        res.send({msg: "Password updated successfully"});
+                        res.status(201).send({msg: "Password updated successfully"});
                     })
                     .catch((error) => {
-                        res.send({msg: "Unable to update the password"});
+                        res.status(500).send({msg: "Unable to update the password"});
                     })
             })
             .catch((error) => {
-                res.send({msg: "unable to hashed password"});
+                res.status(500).send({msg: "unable to hashed password"});
             })
         })
         .catch((error) => {
-            res.send({msg: "username is not found"});
+            res.status(404).send({msg: "username is not found"});
         })
     } catch (error) {
-        res.send({error});
+        res.status(500).send({error});
     }
 }
 
